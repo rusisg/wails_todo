@@ -1,0 +1,84 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  min-height: 100vh;
+  background-color: #f4f4f4; 
+}
+
+.container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  width: 400px; /* Or a percentage for responsiveness */
+  max-width: 90%; /* Prevent overflow on smaller screens */
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333; 
+}
+
+.input-area {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.input-area input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.input-area button {
+  background-color: #4CAF50; 
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center; /* Vertically align checkbox and text */
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #888; 
+}
+
+.delete-button {
+  background-color: #f44336; 
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: auto; /* Push to the right */
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px; /* Add some spacing below */
+}
