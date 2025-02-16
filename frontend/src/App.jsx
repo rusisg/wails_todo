@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 function App() {
     const [todos, setTodos] = useState([]);
-    const [completedTodos, setCompletedTodos] = useState([]); // Added missing state
+    const [completedTodos, setCompletedTodos] = useState([]);
     const [newTodo, setNewTodo] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -58,7 +58,6 @@ function App() {
         }
     };
 
-    // Added missing undoTodo function
     const undoTodo = (id) => {
         window.go.main.App.ToggleTodo(id)
             .then(updateTodoLists)
