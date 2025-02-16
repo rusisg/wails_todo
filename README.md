@@ -1,19 +1,109 @@
-# README
+# Wails ToDo List Приложение
 
-## About
+## О проекте
+Todo приложение, построенное с помощью Wails, объединяющее backend на Go с frontend на React.
 
-This is the official Wails React template.
+## Технологический стек
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+### Backend (Go)
+- **Wails**: Фреймворк для создания desktop приложений с использованием Go и веб-технологий
+- **База данных**: Локальное хранение в JSON файле с правильной обработкой ошибок
+- **UUID**: Для генерации уникальных идентификаторов задач
+- **Управление временем**: Форматирование времени RFC822 для согласованной обработки дат
 
-## Live Development
+### Frontend (React + Vite)
+- **React**: UI библиотека для создания компонентных интерфейсов
+- **shadcn/ui**: Выбран за:
+  - Красиво разработанные компоненты
+  - Доступность из коробки
+  - Удобное копирование компонентов
+  - Поддержка светлой/темной темы
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+### Почему shadcn/ui + Vite + pnpm?
 
-## Building
+#### Преимущества shadcn/ui
+1. **Настройка компонентов**: Прямой доступ к исходному коду компонентов
+2. **Нет внешних зависимостей**: Компоненты являются частью вашей кодовой базы
+4. **Доступность**: ARIA-совместимые компоненты
+5. **Современный дизайн**: Следование текущим трендам UI/UX
 
-To build a redistributable, production mode package, use `wails build`.
+#### Преимущества Vite
+1. **Быстрая разработка**: Молниеносная замена модулей
+2. **Современные инструменты сборки**: Построен на основе esbuild
+3. **Поддержка React**: Первоклассная поддержка React
+4. **Малый размер бандла**: Эффективное разделение кода
+
+#### Преимущества pnpm
+1. **Эффективность дискового пространства**: Экономит место с помощью адресуемого по содержимому хранилища
+2. **Быстрая установка**: Параллельное разрешение пакетов
+3. **Строгость**: Предотвращает фантомные зависимости
+4. **Поддержка монорепозиториев**: Встроенная поддержка рабочих пространств
+5. **Безопасность**: Улучшенная безопасность с символическими ссылками
+
+## Установка
+
+### Предварительные требования
+- Go 1.18 или новее
+- Node.js 14 или новее
+- pnpm 6 или новее
+
+### Настройка среды разработки
+
+1. Установка pnpm:
+```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+```
+
+2. Установка shadcn/ui -> Vite:
+```bash
+pnpm create vite@latest
+```
+
+3. Установка зависимостей:
+```bash
+pnpm install
+```
+
+## Структура проекта
+
+```
+wails_todo/
+├── app.go              # Backend код на Go
+├── frontend/          
+│   ├── src/
+│   │   ├── App.jsx    # Главный React компонент
+│   │   └── index.css  # CSS
+│   └── package.json   
+├── todos.json         # Локальное хранилище
+└── wails.json        # Конфигурация Wails
+```
+
+## Разработка
+
+### Живая разработка
+```bash
+wails dev
+```
+
+### Сборка для продакшена
+```bash
+wails build
+```
+
+## Возможности
+
+- Операции создания, чтения, обновления, удаления (CRUD) для задач
+- Постоянное хранение в локальном JSON файле
+- Обновления в реальном времени
+- Адаптивный дизайн
+- Доступные компоненты
+- Поддержка темной/светлой темы
+- Обработка ошибок и состояний загрузки
+
+## Участие в разработке
+
+1. Форкните репозиторий
+2. Создайте ветку для функционала
+3. Зафиксируйте изменения
+4. Отправьте в ветку
+5. Создайте Pull Request
