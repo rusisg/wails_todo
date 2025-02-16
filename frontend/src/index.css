@@ -13,8 +13,8 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-  width: 400px; /* Or a percentage for responsiveness */
-  max-width: 90%; /* Prevent overflow on smaller screens */
+  width: 100%; /* Or a percentage for responsiveness */
+  max-width: 100%; /* Prevent overflow on smaller screens */
   box-sizing: border-box; /* Include padding and border in width */
 }
 
@@ -81,4 +81,35 @@ h1 {
 .error-message {
   color: red;
   margin-bottom: 10px; /* Add some spacing below */
+}
+
+.todo-dates {
+  display: flex; /* Arrange dates horizontally */
+  flex-direction: column; /* Stack dates vertically */
+  font-size: smaller; /* Make dates smaller */
+  color: #777; /* Gray color for dates */
+  margin-top: 5px; /* Add some spacing above dates */
+}
+
+.created-at, .done-at {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+
+/* Done container */
+
+.undo-button {
+  background-color: #007bff; /* Blue color for Undo */
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: auto; /* Push to the right */
+}
+
+/* Optional: Style the "To Do" and "Done" headers */
+h2 {
+  margin-top: 20px; /* Add some spacing above the headers */
 }
