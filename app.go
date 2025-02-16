@@ -15,8 +15,8 @@ type Todo struct {
 	ID         string `json:"ID"`
 	Text       string `json:"Text"`
 	Completed  bool   `json:"Completed"`
-	Created_at string `json:"Created_at"`
-	Done_at    string `json:"Done_at"`
+	Created_at string `json:"Created_at"` // maybe looks not good
+	Done_at    string `json:"Done_at"`    // this one also but it is work
 }
 
 // App struct
