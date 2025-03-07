@@ -3,13 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 //TODO:
@@ -30,27 +27,15 @@ type Todo struct {
 // App struct
 type App struct {
 	ctx        context.Context
-	client     *mongo.Client
-	collection *mongo.Collection
+	repository TaskRepository
 }
 
-func NewApp() *App {
-	return &App{}
+func NewApp(repository TaskRepository) *App {
+	return &App{repository: repository}
 }
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.connectToDB()
-}
-
-func (a *App) connectToDB() {
-	var err error
-	a.client, err = mongo.Connect(a.ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	a.collection = a.client.Database("wails_todo").Collection("todos")
 }
 
 func (a *App) AddTodo(text string) ([]Todo, error) {
@@ -62,7 +47,7 @@ func (a *App) AddTodo(text string) ([]Todo, error) {
 		Done_at:    time.Time{}.Format(time.RFC822),
 	}
 
-	_, err := a.collection.InsertOne(a.ctx, todo)
+	err := a.repository.AddTask(a.ctx, todo)
 	if err != nil {
 		return nil, err
 	}
@@ -71,25 +56,21 @@ func (a *App) AddTodo(text string) ([]Todo, error) {
 }
 
 func (a *App) GetTodos() ([]Todo, error) {
-	cursor, err := a.collection.Find(a.ctx, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(a.ctx)
-
-	var todos []Todo
-	if err = cursor.All(a.ctx, &todos); err != nil {
-		return nil, err
-	}
-
-	return todos, nil
+	return a.repository.GetTasks(a.ctx)
 }
 
 func (a *App) ToggleTodo(id string) ([]Todo, error) {
-	var todo Todo
-	err := a.collection.FindOne(a.ctx, bson.M{"_id": id}).Decode(&todo)
+	todos, err := a.repository.GetTasks(a.ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error finding todo: %w", err)
+		return nil, err
+	}
+
+	var todo Todo
+	for _, t := range todos {
+		if t.ID == id {
+			todo = t
+			break
+		}
 	}
 
 	update := bson.M{
@@ -99,7 +80,7 @@ func (a *App) ToggleTodo(id string) ([]Todo, error) {
 		},
 	}
 
-	_, err = a.collection.UpdateOne(a.ctx, bson.M{"_id": id}, update)
+	err = a.repository.UpdateTask(a.ctx, id, update)
 	if err != nil {
 		return nil, fmt.Errorf("error updating todo: %w", err)
 	}
@@ -108,7 +89,7 @@ func (a *App) ToggleTodo(id string) ([]Todo, error) {
 }
 
 func (a *App) DeleteTodo(id string) ([]Todo, error) {
-	_, err := a.collection.DeleteOne(a.ctx, bson.M{"_id": id})
+	err := a.repository.DeleteTask(a.ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +104,7 @@ func (a *App) EditTodo(id string, newText string) ([]Todo, error) {
 		},
 	}
 
-	_, err := a.collection.UpdateOne(a.ctx, bson.M{"_id": id}, update)
+	err := a.repository.UpdateTask(a.ctx, id, update)
 	if err != nil {
 		return nil, fmt.Errorf("error updating todo: %w", err)
 	}
