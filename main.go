@@ -11,6 +11,9 @@ import (
 // go:embed all:frontend/dist
 var assets embed.FS
 
+//TODO:
+// 1. Connect App to MongoDB repo
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()

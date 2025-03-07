@@ -101,3 +101,9 @@ func (a *App) DeleteTodo(id string) ([]Todo, error) {
 	}
 	return nil, fmt.Errorf("todo not found")
 }
+
+//TODO:
+//1. интерфейс таск к репозиторий
+//2. Implementation mongoDB
+//3. function of editing task
+//4. sort of tasks
