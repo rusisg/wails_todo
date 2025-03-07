@@ -27,8 +27,10 @@ func main() {
 		}
 	}()
 
-	// Create an instance of the app structure
-	app := NewApp()
+	collection := client.Database("wails_todo").Collection("todos")
+	repository := NewMongoTaskRepository(collection)
+
+	app := NewApp(repository)
 
 	// Create application with options
 	err = wails.Run(&options.App{
