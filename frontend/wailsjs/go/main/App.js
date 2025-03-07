@@ -10,6 +10,10 @@ export function DeleteTodo(arg1) {
   return window['go']['main']['App']['DeleteTodo'](arg1);
 }
 
+export function EditTodo(arg1, arg2) {
+  return window['go']['main']['App']['EditTodo'](arg1, arg2);
+}
+
 export function GetTodos() {
   return window['go']['main']['App']['GetTodos']();
 }

@@ -2,55 +2,55 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+//TODO:
+//1. интерфейс таск к репозиторий (DONE; MongoDB Compass)
+//2. Implementation mongoDB (DONE)
+//3. function of editing task (DONE)
+//4. sort of tasks (process)
 
 // Todo struct
 type Todo struct {
-	ID         string `json:"ID"`
-	Text       string `json:"Text"`
-	Completed  bool   `json:"Completed"`
-	Created_at string `json:"Created_at"` // maybe looks not good
-	Done_at    string `json:"Done_at"`    // this one also but it is work
+	ID         string `json:"ID" bson:"_id,omitempty"`
+	Text       string `json:"Text" bson:"text"`
+	Completed  bool   `json:"Completed" bson:"completed"`
+	Created_at string `json:"Created_at" bson:"created_at"`
+	Done_at    string `json:"Done_at" bson:"done_at"`
 }
 
 // App struct
 type App struct {
-	ctx      context.Context
-	todos    []Todo
-	saveFile string
+	ctx        context.Context
+	client     *mongo.Client
+	collection *mongo.Collection
 }
 
 func NewApp() *App {
-	return &App{
-		todos:    make([]Todo, 0),
-		saveFile: "todos.json",
-	}
+	return &App{}
 }
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.loadTodos()
+	a.connectToDB()
 }
 
-func (a *App) loadTodos() {
-	data, err := os.ReadFile(a.saveFile)
-	if err == nil {
-		json.Unmarshal(data, &a.todos)
-	}
-}
-
-func (a *App) saveTodos() error {
-	data, err := json.MarshalIndent(a.todos, "", "  ")
+func (a *App) connectToDB() {
+	var err error
+	a.client, err = mongo.Connect(a.ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	return os.WriteFile(a.saveFile, data, 0644)
+
+	a.collection = a.client.Database("wails_todo").Collection("todos")
 }
 
 func (a *App) AddTodo(text string) ([]Todo, error) {
@@ -61,49 +61,72 @@ func (a *App) AddTodo(text string) ([]Todo, error) {
 		Created_at: time.Now().Format(time.RFC822),
 		Done_at:    time.Time{}.Format(time.RFC822),
 	}
-	a.todos = append(a.todos, todo)
 
-	if err := a.saveTodos(); err != nil {
+	_, err := a.collection.InsertOne(a.ctx, todo)
+	if err != nil {
 		return nil, err
 	}
 
-	return a.todos, nil
+	return a.GetTodos()
 }
 
-func (a *App) GetTodos() []Todo {
-	return a.todos
+func (a *App) GetTodos() ([]Todo, error) {
+	cursor, err := a.collection.Find(a.ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(a.ctx)
+
+	var todos []Todo
+	if err = cursor.All(a.ctx, &todos); err != nil {
+		return nil, err
+	}
+
+	return todos, nil
 }
 
 func (a *App) ToggleTodo(id string) ([]Todo, error) {
-	for i, todo := range a.todos {
-		if todo.ID == id {
-			a.todos[i].Completed = !a.todos[i].Completed
-			a.todos[i].Done_at = time.Now().Format(time.RFC822)
-			if err := a.saveTodos(); err != nil {
-				return nil, fmt.Errorf("error saving todos: %w", err)
-			}
-
-			return a.todos, nil
-		}
+	var todo Todo
+	err := a.collection.FindOne(a.ctx, bson.M{"_id": id}).Decode(&todo)
+	if err != nil {
+		return nil, fmt.Errorf("error finding todo: %w", err)
 	}
-	return nil, fmt.Errorf("todo with id '%s' not found", id)
+
+	update := bson.M{
+		"$set": bson.M{
+			"completed": !todo.Completed,
+			"done_at":   time.Now().Format(time.RFC822),
+		},
+	}
+
+	_, err = a.collection.UpdateOne(a.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return nil, fmt.Errorf("error updating todo: %w", err)
+	}
+
+	return a.GetTodos()
 }
 
 func (a *App) DeleteTodo(id string) ([]Todo, error) {
-	for i, todo := range a.todos {
-		if todo.ID == id {
-			a.todos = append(a.todos[:i], a.todos[i+1:]...)
-			if err := a.saveTodos(); err != nil {
-				return nil, err
-			}
-			return a.todos, nil
-		}
+	_, err := a.collection.DeleteOne(a.ctx, bson.M{"_id": id})
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("todo not found")
+
+	return a.GetTodos()
 }
 
-//TODO:
-//1. интерфейс таск к репозиторий
-//2. Implementation mongoDB
-//3. function of editing task
-//4. sort of tasks
+func (a *App) EditTodo(id string, newText string) ([]Todo, error) {
+	update := bson.M{
+		"$set": bson.M{
+			"text": newText,
+		},
+	}
+
+	_, err := a.collection.UpdateOne(a.ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return nil, fmt.Errorf("error updating todo: %w", err)
+	}
+
+	return a.GetTodos()
+}
