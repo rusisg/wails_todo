@@ -107,6 +107,28 @@ pnpm create vite@latest
 ```
 
 3. Установка зависимостей:
+#### Installation of MongoDB
+
+```
+docker run --name some-mongodb -p 27017:27017 mongo
+```
+
+#### Go
+```
+go mod tidy
+
+go get go.mongodb.org/mongo-driver/mongo
+go get go.mongodb.org/mongo-driver/bson
+```
+
+#### Mongo Golang quickstart
+
+```
+
+```
+
+
+#### pnpm dependencies
 ```bash
 pnpm install
 ```
